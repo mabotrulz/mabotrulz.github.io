@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mario — Projects</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a12;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container { max-width: 1000px; width: 100%; padding: 40px 20px; }
+
+  .header { text-align: center; margin-bottom: 48px; }
+  .header h1 {
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #4ecca3, #00d2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header p { color: #888; font-size: clamp(14px, 2.5vw, 18px); margin-top: 8px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .card {
+    background: #16162a;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid #2a2a40;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(78, 204, 163, 0.15);
+    border-color: #4ecca3;
+  }
+
+  .card-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+    background: #1a1a2e;
+  }
+
+  .card-body { padding: 20px; }
+  .card-body h2 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .card-body .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .tag-game { background: #4ecca322; color: #4ecca3; }
+  .tag-tool { background: #ff6b9d22; color: #ff6b9d; }
+  .card-body p { font-size: 14px; color: #999; line-height: 1.5; }
+  .card-body .links { margin-top: 14px; display: flex; gap: 12px; }
+  .card-body .links a {
+    font-size: 13px;
+    font-weight: 600;
+    color: #00d2ff;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .card-body .links a:hover { color: #4ecca3; }
+
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: #555;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>⚡ Mario's Projects</h1>
+    <p>Game dev · Web apps · Side projects</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- SlitherGrid -->
+    <div class="card">
+      <img class="card-img" src="slithergrid_thumb.png" alt="SlitherGrid screenshot" loading="lazy">
+      <div class="card-body">
+        <span class="tag tag-game">🎮 Game</span>
+        <h2>SlitherGrid</h2>
+        <p>Multiplayer snake battle on a grid. Fight AI snakes, collect power-ups, bombs, and boost your way to the top. Head-on collisions, body cuts, rainbow boosts.</p>
+        <div class="links">
+          <a href="https://mabotrulz.github.io/slithergrid" target="_blank">▶ Play</a>
+          <a href="https://github.com/mabotrulz/slithergrid" target="_blank">GitHub</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- NeoGame -->
+    <div class="card">
+      <img class="card-img" src="neogame_thumb.png" alt="Joga com Neo screenshot" loading="lazy">
+      <div class="card-body">
+        <span class="tag tag-game">🎮 Educational</span>
+        <h2>Joga com Neo — Letras</h2>
+        <p>Letter drag & drop game in Portuguese. Angry Birds themed — drag letters to form words while a bird chases a pig. Speech synthesis for letter names and phrases.</p>
+        <div class="links">
+          <a href="https://mabotrulz.github.io/neogame" target="_blank">▶ Play</a>
+          <a href="https://github.com/mabotrulz/neogame" target="_blank">GitHub</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plant Templates -->
+    <div class="card">
+      <img class="card-img" src="plant_thumb.png" alt="Plant templates screenshot" loading="lazy" style="background:linear-gradient(135deg,#2d6a4f,#52b788)">
+      <div class="card-body">
+        <span class="tag tag-tool">🛠 Design</span>
+        <h2>Plant Care Templates</h2>
+        <p>10 square social media templates (1080×1080px) about plant care. Green & white illustrative style. Ready to screenshot and use in Canva or social media.</p>
+        <div class="links">
+          <a href="https://mabotrulz.github.io/slithergrid/plant-templates.html" target="_blank">▶ View</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    mabotrulz · <a href="https://github.com/mabotrulz" style="color:#555;text-decoration:none">GitHub</a>
+  </div>
+</div>
+</body>
+</html>
