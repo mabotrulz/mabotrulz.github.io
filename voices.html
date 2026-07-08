@@ -2,68 +2,136 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vozes disponíveis</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Vozes — testar</title>
 <style>
   body { background:#1a1a2e; color:#eee; font-family:system-ui,sans-serif; padding:20px; max-width:600px; margin:auto; }
   h1 { color:#4ecca3; font-size:20px; }
-  .voice { background:#16213e; border-radius:10px; padding:12px 16px; margin:8px 0; display:flex; justify-content:space-between; align-items:center; }
-  .voice .name { font-size:14px; }
-  .voice .lang { color:#888; font-size:12px; }
-  button { background:#4ecca3; border:none; color:#1a1a2e; padding:6px 16px; border-radius:8px; font-weight:700; cursor:pointer; }
+  .controls { background:#16213e; border-radius:10px; padding:16px; margin:12px 0; }
+  .control-row { display:flex; justify-content:space-between; align-items:center; margin:6px 0; }
+  .control-row label { font-size:13px; color:#aaa; }
+  .control-row input[type=range] { width:140px; accent-color:#4ecca3; }
+  .control-row .val { font-size:13px; color:#4ecca3; min-width:30px; text-align:right; }
+  #phraseInput { width:100%; padding:8px; border-radius:8px; border:1px solid #333; background:#0f3460; color:#eee; font-size:14px; margin:8px 0; box-sizing:border-box; }
+  .voice { background:#16213e; border-radius:10px; padding:10px 14px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; }
+  .voice .name { font-size:13px; }
+  .voice .lang { color:#888; font-size:11px; }
+  button { background:#4ecca3; border:none; color:#1a1a2e; padding:5px 14px; border-radius:8px; font-weight:700; cursor:pointer; font-size:12px; }
   button:hover { background:#3dba93; }
-  .loading { color:#888; text-align:center; padding:40px; }
-  #testBtn { display:block; margin:20px auto; padding:12px 32px; font-size:16px; background:#f1c40f; }
+  .loading { color:#888; text-align:center; padding:30px; }
+  .save-btn { display:block; margin:16px auto; padding:12px 32px; font-size:15px; background:#f1c40f; }
+  .saved { color:#4ecca3; font-size:12px; text-align:center; margin:4px 0; display:none; }
+  .filter { display:flex; gap:6px; margin:8px 0; flex-wrap:wrap; }
+  .filter button { background:#333; color:#aaa; padding:4px 12px; }
+  .filter button.active { background:#4ecca3; color:#1a1a2e; }
 </style>
 </head>
 <body>
-<h1>🎤 Vozes disponíveis</h1>
-<p style="color:#888;font-size:13px">Toque num botão para ouvir a voz a dizer "Encontra a letra A"</p>
-<button id="testBtn" onclick="testPhrase()">🔊 Ouvir frase de teste</button>
+<h1>🎤 Vozes — testar</h1>
+<p style="color:#888;font-size:13px">Ajusta os parâmetros e ouve cada voz.</p>
+
+<div class="controls">
+  <div class="control-row"><label>🚀 Velocidade (rate)</label><input type="range" id="rateSlider" min="0.3" max="2.0" step="0.05" value="0.85"><span class="val" id="rateVal">0.85</span></div>
+  <div class="control-row"><label>📈 Tom (pitch)</label><input type="range" id="pitchSlider" min="0.2" max="2.0" step="0.05" value="1.0"><span class="val" id="pitchVal">1.0</span></div>
+  <div class="control-row"><label>🔊 Volume</label><input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1"><span class="val" id="volumeVal">1</span></div>
+  <input id="phraseInput" value="Encontra a letra A" placeholder="Frase para testar...">
+</div>
+
+<div class="filter" id="filterBar">
+  <button class="active" onclick="filterVoices('all',this)">Todos</button>
+  <button onclick="filterVoices('pt',this)">🇵🇹 Português</button>
+  <button onclick="filterVoices('en',this)">🇬🇧 Inglês</button>
+</div>
+
 <div id="list" class="loading">A carregar vozes...</div>
+
+<button class="save-btn" onclick="saveSettings()">💾 Guardar definições</button>
+<div class="saved" id="savedMsg">Definições guardadas! Usa no jogo com pitch=<span id="savedPitch"></span> rate=<span id="savedRate"></span></div>
+
 <script>
-function testPhrase() {
-  if (!window.speechSynthesis) return alert('Sem síntese de voz');
-  const u = new SpeechSynthesisUtterance('Encontra a letra A');
-  u.lang = 'pt-PT'; u.rate = 0.85;
-  window.speechSynthesis.speak(u);
+let allVoices = [];
+
+function getParams() {
+  return {
+    rate: parseFloat(document.getElementById('rateSlider').value),
+    pitch: parseFloat(document.getElementById('pitchSlider').value),
+    volume: parseFloat(document.getElementById('volumeSlider').value),
+    phrase: document.getElementById('phraseInput').value || 'Encontra a letra A'
+  };
 }
 
-function loadVoices() {
-  const voices = window.speechSynthesis.getVoices();
+function updateLabels() {
+  document.getElementById('rateVal').textContent = document.getElementById('rateSlider').value;
+  document.getElementById('pitchVal').textContent = document.getElementById('pitchSlider').value;
+  document.getElementById('volumeVal').textContent = document.getElementById('volumeSlider').value;
+}
+
+['rateSlider','pitchSlider','volumeSlider'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateLabels);
+});
+updateLabels();
+
+function filterVoices(lang, btn) {
+  document.querySelectorAll('#filterBar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderVoices(lang);
+}
+
+function renderVoices(filter) {
   const list = document.getElementById('list');
+  let voices = allVoices;
+  if (filter === 'pt') voices = allVoices.filter(v => v.lang.startsWith('pt'));
+  else if (filter === 'en') voices = allVoices.filter(v => v.lang.startsWith('en'));
+  
   if (voices.length === 0) {
     list.innerHTML = '<div class="loading">Nenhuma voz encontrada</div>';
     return;
   }
   list.innerHTML = '';
   voices.forEach((v, i) => {
+    const idx = allVoices.indexOf(v);
+    const isPT = v.lang.startsWith('pt');
+    const isEN = v.lang.startsWith('en');
+    const flag = isPT ? '🇵🇹' : isEN ? '🇬🇧' : '';
     const d = document.createElement('div');
     d.className = 'voice';
-    const isPT = v.lang.indexOf('pt') === 0 || v.lang.indexOf('PT') >= 0;
-    const isEN = v.lang.indexOf('en') === 0;
-    d.innerHTML = `<div><div class="name">${v.name} ${isPT ? '🇵🇹' : isEN ? '🇬🇧' : ''}</div><div class="lang">${v.lang}${v.localService ? ' • local' : ''}</div></div>
-      <button onclick="playVoice(${i})">▶ Ouvir</button>`;
+    d.innerHTML = `<div><div class="name">${flag} ${v.name}</div><div class="lang">${v.lang}${v.localService ? ' • local' : ''}</div></div>
+      <button onclick="playVoice(${idx})">▶</button>`;
     list.appendChild(d);
   });
 }
 
 function playVoice(idx) {
-  const voices = window.speechSynthesis.getVoices();
-  const v = voices[idx];
+  const v = allVoices[idx];
   if (!v) return;
+  const p = getParams();
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance('Encontra a letra A');
-  u.voice = v; u.lang = v.lang; u.rate = 0.85;
+  var u = new SpeechSynthesisUtterance(p.phrase);
+  u.voice = v; u.lang = v.lang; u.rate = p.rate; u.pitch = p.pitch; u.volume = p.volume;
   window.speechSynthesis.speak(u);
 }
 
+function loadVoices() {
+  allVoices = window.speechSynthesis.getVoices();
+  const active = document.querySelector('#filterBar .active');
+  renderVoices(active ? active.textContent.toLowerCase() : 'all');
+}
+
+function saveSettings() {
+  const p = getParams();
+  document.getElementById('savedPitch').textContent = p.pitch;
+  document.getElementById('savedRate').textContent = p.rate;
+  document.getElementById('savedMsg').style.display = 'block';
+  // Save to localStorage so the game can read it
+  localStorage.setItem('neogame_voice_pitch', p.pitch);
+  localStorage.setItem('neogame_voice_rate', p.rate);
+  localStorage.setItem('neogame_voice_phrase', p.phrase);
+}
+
 if (window.speechSynthesis) {
-  window.speechSynthesis.getVoices(); // seed
-  setTimeout(loadVoices, 100);
-  if (window.speechSynthesis.onvoiceschanged !== undefined) {
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-  }
+  window.speechSynthesis.getVoices();
+  setTimeout(loadVoices, 200);
+  window.speechSynthesis.onvoiceschanged = loadVoices;
 } else {
   document.getElementById('list').innerHTML = '<div class="loading">Sem suporte de síntese de voz</div>';
 }
